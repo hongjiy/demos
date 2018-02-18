@@ -1,5 +1,5 @@
 This program find max number in given overlapping intervals
-This program has O(n) time complexity and O(1) space complexity
+This program has O(n) time complexity and O(1) to O(n) space complexity
 
 A detailed description can be found here:
 https://www.hackerrank.com/challenges/crush/problem
