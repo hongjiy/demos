@@ -9,5 +9,4 @@ def hello():
 	#return "Hello from Hongji on AWS!"
 	return render_template("main.html")
 
-#app.run(host = '0.0.0.0', port = 80)
-app.run()
+app.run(host = '0.0.0.0', port = 80)
