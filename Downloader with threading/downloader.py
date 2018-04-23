@@ -9,7 +9,7 @@ import os
 import time
 
 #Setup static variables
-url = 'https://storage.googleapis.com/vimeo-test/work-at-vimeo-2.mp4'
+url = ''
 MAX_THREADS_COUNT = 45
 MAX_ATTEMPT = 5
 MAX_MEM = 1024*1024*5
