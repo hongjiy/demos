@@ -9,7 +9,7 @@ import os
 import time
 
 #Setup static variables
-url = ''
+url = 'https://storage.googleapis.com/vimeo-test/work-at-vimeo-2.mp4'
 MAX_THREADS_COUNT = 45
 MAX_ATTEMPT = 5
 MAX_MEM = 1024*1024*5
@@ -19,7 +19,7 @@ class Downloader:
 		# URL to target file
 		self.url = url
 		# Size of chunk to grab each time
-		self.chunk = 1024*1024*chunk_size_in_MB
+		self.chunk = int(1024*1024*chunk_size_in_MB)
 		# Output file name
 		self.file_name = url.split('/')[-1]
 		# Parse the url to usabable format
@@ -39,9 +39,6 @@ class Downloader:
 		self.is_bytes = header['accept-ranges'] == 'bytes'
 		# Make sure threads count doesn't exceed limit
 		# Connction starts to break around 50 threads for this particular sever
-		if self.threads_count > MAX_THREADS_COUNT and not bench:
-			raise ValueError('Threads count exceeds limit, use a larger chunk size and retry')
-			sys.exit(1)
 		# Create a place to temperorily store chunk files, if it does not already exist
 		if not os.path.exists('Sample_files'):
    			os.makedirs('Sample_files')
@@ -73,21 +70,29 @@ class Downloader:
 	def download_with_threads(self):
 		try:
 			offset = 0
-			threads = []
+			delta_offset = 0
 
 			print 'Download in progress...'
 			# Creating as many threads as necessary
 			while offset < self.file_len:
-				t = Thread(target = self.get_byte_data, args = (url, offset, self.chunk))
-				threads.append(t)
-				offset += self.chunk + 1
+				threads = []
+				while delta_offset < MAX_MEM and len(threads) < MAX_THREADS_COUNT:
+					t = Thread(target = self.get_byte_data, args = (url, offset, self.chunk))
+					threads.append(t)
+					offset += self.chunk + 1
+					delta_offset += self.chunk + 1
+					#print "got here"
+				print 'delta_offset: ', delta_offset, 'offset: ', offset
+				print 'len of threads: ', len(threads)
+				delta_offset = 0
+				# Start threads
+				for t in threads:
+					t.start()
+				# Wait for threads to finish
+				for t in threads:
+					t.join()
 
-			# Start threads
-			for t in threads:
-				t.start()
-			# Wait for threads to finish
-			for t in threads:
-				t.join()
+
 		except:
 			# One or more threads failed to complete download, start over
 			print 'Download with threads failed, restart in 5s'
@@ -232,8 +237,11 @@ class Agent():
 		downloader.start()
 
 if __name__ == '__main__':
-	agent = Agent()
-	agent.run()
+	#agent = Agent()
+	#agent.run()
+
+	#downloader = Downloader(0.1, True)
+	#print downloader.validate_MD5_hash()
 
 
 
